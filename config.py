@@ -28,7 +28,7 @@ def readConfigJson():
 
 configs = readConfigJson()
 
-APP_VERSION = '1.3.3'
+APP_VERSION = '2'
 
 ASSETS_BASE_DIR = configs["assets_base_directory"]
 # ASSETS_BASE_DIR = './test_assets/'

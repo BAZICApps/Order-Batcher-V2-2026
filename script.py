@@ -126,7 +126,7 @@ def cleansItemNumberFromInputFile(itemNumber):
         cleaned = itemNumber.split(':')[1].strip()
     return cleaned
 
-#Modified by Joselin, v2-2026 acomodate multiple items in 1 SKU (eg THX-1)
+#Two functions below are being modified to acommodate multiple item in one SKU (e.g: THX-1)
 def mapItemNumberToUOMQty(itemNumber, uomMaster):
     _itemNumber = itemNumber.strip()
 
@@ -140,7 +140,6 @@ def mapItemNumberToUOMQty(itemNumber, uomMaster):
 
     return (_itemNumber, uomQty)
 
-#Modified by Joselin, v2-2026 acomodate multiple items in 1 SKU (eg THX-1)
 def splitItemNumberBundle(itemNumber, uomMaster):
     itemNumbers = [itemNumber]
 
@@ -355,6 +354,20 @@ def processResult(filepath, uomMaster, inventoryMaster, orders, orderDetails):
         dataFrame.to_excel(writer, startrow=10, startcol=0)
 
         worksheet = writer.sheets['Sheet1']
+
+        # explicit borders/bold header (pandas 3 no longer styles to_excel headers)
+        workbook = writer.book
+        borderFmt = workbook.add_format({'border': 1})
+        headerFmt = workbook.add_format({'border': 1, 'bold': True, 'align': 'center'})
+        indexFmt = workbook.add_format({'bold': True, 'align': 'center'})
+        headerRow = 10
+        for col, name in enumerate(dataFrame.columns, start=1):
+            worksheet.write(headerRow, col, name, headerFmt)
+        for i, idx in enumerate(dataFrame.index, start=1):
+            worksheet.write(headerRow + i, 0, idx, indexFmt)
+        if len(dataFrame) > 0:
+            worksheet.conditional_format(headerRow + 1, 1, headerRow + len(dataFrame), len(dataFrame.columns),
+                                         {'type': 'formula', 'criteria': 'TRUE', 'format': borderFmt})
         worksheet.write(0, 0, 'Grand Total: ${:.2f}'.format(resultDetails['grandTotal']))
         worksheet.write(1, 0, 'Order Total Before Discount: ${:.2f}'.format(resultDetails['totalOrderBeforeDiscount']))
         worksheet.write(2, 0, 'Order Total: ${:.2f}'.format(resultDetails['totalOrderAmount']))
